@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Curator's Eye — akvarellskiss.se</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#fcf9f3;--surface:#f1ede4;--border:#ddd7ce;--border-md:#cec7bc;
+  --earth:#5d4a3e;--earth-dk:#3e2e24;--earth-lt:#8a6f61;
+  --text:#2e2520;--text-md:#6b5c54;--text-lt:#9b8c84;
+  --white:#ffffff;--green:#4a7c5a;--r:12px;--r-sm:7px;
+}
+html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.55;min-height:100vh}
+.app{max-width:680px;margin:0 auto;padding:1.5rem 1rem 4rem}
+.app-head{text-align:center;margin-bottom:1.75rem}
+.app-head h1{font-family:'Cormorant Garamond',serif;font-size:clamp(1.7rem,5vw,2.2rem);font-weight:300;color:var(--earth);letter-spacing:.02em;margin-bottom:.15rem}
+.app-head .sub{font-size:12px;color:var(--text-lt);font-weight:300;letter-spacing:.06em;font-style:italic}
+.hline{width:40px;height:1px;background:var(--border-md);margin:.6rem auto}
+.brand{font-size:10px;color:var(--text-lt);letter-spacing:.12em;text-transform:uppercase;margin-top:.3rem}
+.card{background:var(--white);border-radius:var(--r);border:1px solid var(--border);margin-bottom:.75rem;overflow:hidden}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1.1rem;cursor:pointer;user-select:none;border-bottom:1px solid transparent;transition:border-color .15s}
+.card.open .card-head{border-color:var(--border)}
+.card-title{font-size:10.5px;font-weight:500;text-transform:uppercase;letter-spacing:.1em;color:var(--text-lt)}
+.chev{font-size:11px;color:var(--text-lt);transition:transform .2s}
+.card.open .chev{transform:rotate(180deg)}
+.card-body{display:none;padding:.9rem 1.1rem 1.1rem}
+.card.open .card-body{display:block}
+.upload-zone{border:1.5px dashed var(--border-md);border-radius:var(--r-sm);padding:2.2rem 1rem;display:flex;flex-direction:column;align-items:center;text-align:center;gap:.55rem;cursor:pointer;background:var(--surface);transition:border-color .18s,background .18s}
+.upload-zone:hover,.upload-zone.dov{border-color:var(--earth-lt);background:rgba(255,255,255,.6)}
+.upload-zone svg{stroke:var(--earth-lt)}
+.upload-zone p{font-size:13px;color:var(--text-md)}
+.upload-zone strong{color:var(--earth);font-weight:500}
+.upload-zone small{font-size:11px;color:var(--text-lt)}
+#fileIn{display:none}
+.preview-strip{display:none;align-items:center;gap:.75rem;padding:.5rem .75rem;background:var(--surface);border-radius:var(--r-sm);border:1px solid var(--border)}
+.preview-thumb{width:60px;height:60px;border-radius:6px;object-fit:cover;flex-shrink:0;border:1px solid var(--border)}
+.preview-info{flex:1;min-width:0}
+.preview-name{font-size:12px;color:var(--text-md);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.preview-dims{font-size:11px;color:var(--text-lt)}
+.change-btn{background:none;border:none;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--earth-lt);text-decoration:underline;cursor:pointer}
+.fg{margin-bottom:.8rem}.fg:last-child{margin-bottom:0}
+.fl{display:block;font-size:10px;font-weight:500;color:var(--text-lt);text-transform:uppercase;letter-spacing:.09em;margin-bottom:.32rem}
+.ti{width:100%;padding:.45rem .65rem;border:1.5px solid var(--border);border-radius:var(--r-sm);background:var(--bg);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .15s;resize:none}
+.ti:focus{border-color:var(--earth-lt);background:var(--white)}
+.ti::placeholder{color:var(--text-lt)}
+.seg{display:flex;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:2px;gap:2px;flex-wrap:wrap}
+.seg-btn{flex:1;min-width:0;padding:5px 6px;border-radius:5px;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:11.5px;color:var(--text-lt);cursor:pointer;transition:all .15s;white-space:nowrap;text-align:center}
+.seg-btn:hover{color:var(--earth)}
+.seg-btn.active{background:var(--earth);color:#fff;font-weight:500}
+.pill-row{display:flex;flex-wrap:wrap;gap:5px}
+.pill{padding:4px 10px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg);font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text-lt);cursor:pointer;transition:all .15s}
+.pill:hover{border-color:var(--earth-lt);color:var(--earth)}
+.pill.active{border-color:var(--earth);background:var(--surface);color:var(--earth);font-weight:500}
+.gen-btn{width:100%;padding:.8rem 1rem;background:var(--earth);color:#fff;border:none;border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;letter-spacing:.04em;cursor:pointer;transition:background .15s;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:.75rem}
+.gen-btn:hover:not(:disabled){background:var(--earth-dk)}
+.gen-btn:disabled{opacity:.42;cursor:not-allowed}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.results{display:none;flex-direction:column;gap:.65rem}
+.result-card{background:var(--white);border-radius:var(--r);border:1px solid var(--border);overflow:hidden}
+.result-head{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1rem .55rem;border-bottom:1px solid var(--border)}
+.result-type{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.1em;color:var(--text-lt)}
+.result-badge{font-size:10px;color:var(--earth-lt);font-style:italic}
+.result-body{padding:.8rem 1rem;font-size:13.5px;color:var(--text-md);line-height:1.7}
+.result-foot{padding:.4rem 1rem .65rem;display:flex;justify-content:flex-end}
+.copy-btn{display:flex;align-items:center;gap:5px;padding:5px 13px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg);font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text-lt);cursor:pointer;transition:all .15s}
+.copy-btn:hover{border-color:var(--earth-lt);color:var(--earth)}
+.copy-btn.copied{border-color:var(--green);color:var(--green);background:#f0f7f2}
+.score-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.65rem}
+.score-card{background:var(--surface);border-radius:var(--r-sm);border:1px solid var(--border);padding:.6rem .8rem}
+.score-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-lt);margin-bottom:.3rem}
+.score-bar-bg{height:4px;background:var(--border);border-radius:2px;margin-bottom:.3rem}
+.score-bar{height:4px;border-radius:2px;background:var(--earth);transition:width .6s ease}
+.score-val{font-size:11px;color:var(--earth);font-weight:500}
+.error-msg{background:#fef4f3;border:1px solid #f5c5c0;border-radius:var(--r-sm);padding:.65rem .9rem;font-size:13px;color:#8b3a30;line-height:1.5;display:none;margin-bottom:.75rem}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="app-head">
+    <h1>The Curator's Eye</h1>
+    <div class="hline"></div>
+    <p class="sub">AI art critique — composition, colour &amp; feeling</p>
+    <p class="brand">www.akvarellskiss.se</p>
+  </header>
+
+  <div class="card open" id="card-upload">
+    <div class="card-head" data-body="body-upload">
+      <span class="card-title">Your Artwork</span>
+      <span class="chev">▾</span>
+    </div>
+    <div class="card-body" id="body-upload">
+      <div class="upload-zone" id="uploadZone">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/>
+          <polyline points="21 15 16 10 5 21"/>
+        </svg>
+        <p><strong>Drop artwork here</strong><br>or click to browse</p>
+        <small>JPG · PNG · WebP</small>
+      </div>
+      <input type="file" id="fileIn" accept="image/jpeg,image/png,image/webp">
+      <div class="preview-strip" id="previewStrip">
+        <img class="preview-thumb" id="previewThumb" src="" alt="">
+        <div class="preview-info">
+          <div class="preview-name" id="previewName"></div>
+          <div class="preview-dims" id="previewDims"></div>
+        </div>
+        <button class="change-btn" id="changeBtn">Change</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card open" id="card-context">
+    <div class="card-head" data-body="body-context">
+      <span class="card-title">Context (optional)</span>
+      <span class="chev">▾</span>
+    </div>
+    <div class="card-body" id="body-context">
+      <div class="fg">
+        <label class="fl">Medium</label>
+        <div class="seg" id="medSeg">
+          <button class="seg-btn active" data-v="watercolour">Watercolour</button>
+          <button class="seg-btn" data-v="oil">Oil</button>
+          <button class="seg-btn" data-v="acrylic">Acrylic</button>
+          <button class="seg-btn" data-v="digital">Digital</button>
+          <button class="seg-btn" data-v="mixed">Mixed</button>
+          <button class="seg-btn" data-v="other">Other</button>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Stage of work</label>
+        <div class="seg" id="stageSeg">
+          <button class="seg-btn active" data-v="early sketch">Early sketch</button>
+          <button class="seg-btn" data-v="work in progress">Work in progress</button>
+          <button class="seg-btn" data-v="nearly finished">Nearly finished</button>
+          <button class="seg-btn" data-v="finished">Finished</button>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">What are you struggling with? <span style="text-transform:none;letter-spacing:0;font-size:9.5px;font-weight:300">(optional)</span></label>
+        <textarea id="struggleField" class="ti" rows="2" placeholder="e.g. The composition feels off. The colours are too flat. I don't know if the focal point works."></textarea>
+      </div>
+      <div class="fg">
+        <label class="fl">Focus areas</label>
+        <div class="pill-row" id="focusPills">
+          <div class="pill active" data-v="composition">Composition</div>
+          <div class="pill active" data-v="colour">Colour &amp; contrast</div>
+          <div class="pill active" data-v="focal point">Focal point</div>
+          <div class="pill active" data-v="mood">Mood &amp; feeling</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="error-msg" id="errMsg"></div>
+
+  <button class="gen-btn" id="genBtn" disabled>Analyse artwork</button>
+
+  <div class="results" id="results">
+    <div class="score-grid" id="scoreGrid"></div>
+    <div class="result-card">
+      <div class="result-head">
+        <span class="result-type">Overall impression</span>
+        <span class="result-badge">The Curator speaks</span>
+      </div>
+      <div class="result-body" id="text-overall"></div>
+    </div>
+    <div class="result-card">
+      <div class="result-head"><span class="result-type">Composition &amp; balance</span></div>
+      <div class="result-body" id="text-composition"></div>
+      <div class="result-foot"><button class="copy-btn" data-t="text-composition">Copy</button></div>
+    </div>
+    <div class="result-card">
+      <div class="result-head"><span class="result-type">Colour &amp; contrast</span></div>
+      <div class="result-body" id="text-colour"></div>
+      <div class="result-foot"><button class="copy-btn" data-t="text-colour">Copy</button></div>
+    </div>
+    <div class="result-card">
+      <div class="result-head"><span class="result-type">Focal point &amp; depth</span></div>
+      <div class="result-body" id="text-focal"></div>
+      <div class="result-foot"><button class="copy-btn" data-t="text-focal">Copy</button></div>
+    </div>
+    <div class="result-card">
+      <div class="result-head"><span class="result-type">Mood &amp; emotional impact</span></div>
+      <div class="result-body" id="text-mood"></div>
+      <div class="result-foot"><button class="copy-btn" data-t="text-mood">Copy</button></div>
+    </div>
+    <div class="result-card">
+      <div class="result-head">
+        <span class="result-type">Suggestions to try</span>
+        <span class="result-badge">Actionable next steps</span>
+      </div>
+      <div class="result-body" id="text-suggestions"></div>
+    </div>
+  </div>
+
+</div>
+<script>
+'use strict';
+
+// ── Proxy URL — update this to your server path ───────────────────────────────
+const PROXY_URL = 'https://yourdomain.com/proxy.php'; // 👈 update this
+// ─────────────────────────────────────────────────────────────────────────────
+
+const S = {
+  imageB64: null, imageType: 'image/jpeg',
+  medium: 'watercolour', stage: 'early sketch',
+  struggle: '', focus: new Set(['composition','colour','focal point','mood'])
+};
+
+const g = id => document.getElementById(id);
+
+// Accordions
+document.querySelectorAll('.card-head[data-body]').forEach(head => {
+  head.addEventListener('click', function() {
+    const card = this.closest('.card');
+    const body = g(this.dataset.body);
+    const open = card.classList.toggle('open');
+    body.style.display = open ? 'block' : 'none';
+  });
+});
+
+// Upload
+const uz = g('uploadZone');
+uz.addEventListener('click', () => g('fileIn').click());
+g('changeBtn').addEventListener('click', () => g('fileIn').click());
+g('fileIn').addEventListener('change', function() { if (this.files?.[0]) { loadFile(this.files[0]); this.value = ''; } });
+uz.addEventListener('dragover', e => { e.preventDefault(); uz.classList.add('dov'); });
+uz.addEventListener('dragleave', () => uz.classList.remove('dov'));
+uz.addEventListener('drop', e => { e.preventDefault(); uz.classList.remove('dov'); if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]); });
+
+function loadFile(file) {
+  if (!['image/jpeg','image/png','image/webp'].includes(file.type)) { showErr('Please upload a JPG, PNG or WebP image.'); return; }
+  clearErr();
+  const reader = new FileReader();
+  reader.onload = e => {
+    const url = e.target.result;
+    S.imageB64 = url.split(',')[1];
+    S.imageType = file.type;
+    const thumb = g('previewThumb');
+    thumb.src = url;
+    thumb.onload = () => { g('previewDims').textContent = thumb.naturalWidth + ' × ' + thumb.naturalHeight + ' px'; };
+    g('previewName').textContent = file.name;
+    uz.classList.add('hidden');
+    g('previewStrip').style.display = 'flex';
+    g('genBtn').disabled = false;
+    g('results').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+// Segments
+g('medSeg').querySelectorAll('.seg-btn').forEach(b => {
+  b.addEventListener('click', function() {
+    S.medium = this.dataset.v;
+    g('medSeg').querySelectorAll('.seg-btn').forEach(x => x.classList.toggle('active', x === this));
+  });
+});
+g('stageSeg').querySelectorAll('.seg-btn').forEach(b => {
+  b.addEventListener('click', function() {
+    S.stage = this.dataset.v;
+    g('stageSeg').querySelectorAll('.seg-btn').forEach(x => x.classList.toggle('active', x === this));
+  });
+});
+g('struggleField').addEventListener('input', function() { S.struggle = this.value; });
+
+// Pills
+g('focusPills').querySelectorAll('.pill').forEach(p => {
+  p.addEventListener('click', function() {
+    const v = this.dataset.v;
+    if (S.focus.has(v)) { if (S.focus.size === 1) return; S.focus.delete(v); this.classList.remove('active'); }
+    else { S.focus.add(v); this.classList.add('active'); }
+  });
+});
+
+// Copy buttons
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.copy-btn');
+  if (!btn) return;
+  const text = g(btn.dataset.t)?.textContent || '';
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.classList.add('copied');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✓ Copied';
+    setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('copied'); }, 2000);
+  }).catch(() => {});
+});
+
+function buildPrompt() {
+  const focusList = [...S.focus].join(', ');
+  let ctx = `Medium: ${S.medium}\nStage: ${S.stage}`;
+  if (S.struggle.trim()) ctx += `\nWhat the artist is struggling with: ${S.struggle.trim()}`;
+  ctx += `\nFocus areas requested: ${focusList}`;
+  return `You are The Curator's Eye — a warm, insightful, and encouraging art critic who gives constructive feedback to artists working in solitude. You speak like a knowledgeable gallery curator: honest, specific, and supportive. Never vague. Always concrete.
+
+Context from the artist:
+${ctx}
+
+Analyse the uploaded artwork and respond ONLY with valid JSON (no markdown, no code fences):
+{
+  "scores": {
+    "composition": <integer 1-10>,
+    "colour": <integer 1-10>,
+    "focal_point": <integer 1-10>,
+    "mood": <integer 1-10>
+  },
+  "overall": "2-3 sentences. Your immediate, honest impression of the work. Be specific about what you see.",
+  "composition": "3-4 sentences on composition and balance. Reference specific areas of the image. Give concrete advice if something could improve.",
+  "colour": "3-4 sentences on colour harmony and contrast. Name specific colours you see. Be specific: 'the ochre against the ultramarine creates beautiful tension' not just 'nice colours'.",
+  "focal_point": "3-4 sentences on focal point and depth. Where does the eye travel? What works or could be stronger?",
+  "mood": "3-4 sentences on mood and emotional impact. What feeling does this work evoke? What in the image creates that feeling?",
+  "suggestions": "3-5 concrete, actionable suggestions the artist can try right now. Each on its own line, starting with a dash. Be specific."
+}`;
+}
+
+async function generate() {
+  if (!S.imageB64) return;
+  clearErr(); setLoading(true); g('results').style.display = 'none';
+  try {
+    const res = await fetch(PROXY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1500,
+        messages: [{ role: 'user', content: [
+          { type: 'image', source: { type: 'base64', media_type: S.imageType, data: S.imageB64 } },
+          { type: 'text', text: buildPrompt() }
+        ]}]
+      })
+    });
+    if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e?.error?.message || 'API error ' + res.status); }
+    const data = await res.json();
+    const raw = data.content?.[0]?.text || '';
+    const clean = raw.replace(/```json|```/g, '').trim();
+    let parsed;
+    try { parsed = JSON.parse(clean); } catch(e) { throw new Error('Could not parse response. Please try again.'); }
+    showResults(parsed);
+  } catch(err) {
+    showErr(err.message || 'Something went wrong. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+}
+
+g('genBtn').addEventListener('click', generate);
+
+function showResults(d) {
+  const scoreLabels = { composition: 'Composition', colour: 'Colour', focal_point: 'Focal point', mood: 'Mood' };
+  const grid = g('scoreGrid');
+  grid.innerHTML = '';
+  Object.entries(d.scores || {}).forEach(([k, v]) => {
+    const pct = Math.round((v / 10) * 100);
+    grid.innerHTML += `<div class="score-card"><div class="score-label">${scoreLabels[k] || k}</div><div class="score-bar-bg"><div class="score-bar" style="width:${pct}%"></div></div><div class="score-val">${v}/10</div></div>`;
+  });
+  g('text-overall').textContent = d.overall || '';
+  g('text-composition').textContent = d.composition || '';
+  g('text-colour').textContent = d.colour || '';
+  g('text-focal').textContent = d.focal_point || '';
+  g('text-mood').textContent = d.mood || '';
+  g('text-suggestions').textContent = d.suggestions || '';
+  g('results').style.display = 'flex';
+  g('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function setLoading(on) {
+  const btn = g('genBtn');
+  btn.disabled = on;
+  btn.innerHTML = on ? '<div class="spinner"></div> Analysing…' : 'Analyse artwork';
+}
+function showErr(msg) { const e = g('errMsg'); e.textContent = msg; e.style.display = 'block'; }
+function clearErr() { const e = g('errMsg'); e.style.display = 'none'; e.textContent = ''; }
+
+document.querySelectorAll('.card.open .card-body').forEach(b => b.style.display = 'block');
+</script>
+</body>
+</html>
